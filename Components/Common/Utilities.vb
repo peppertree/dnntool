@@ -9,6 +9,70 @@ Imports Microsoft.ApplicationBlocks.Data
 Namespace Common
     Public Class Utilities
 
+        Public Shared Sub DirectoryDelete(folderPath As String)
+
+            If System.IO.Directory.Exists(folderPath) Then
+                System.IO.Directory.Delete(folderPath, True)
+            End If
+
+        End Sub
+
+        Public Shared Sub DirectoryCreate(folderPath As String)
+
+            If Not System.IO.Directory.Exists(folderPath) Then
+                System.IO.Directory.CreateDirectory(folderPath)
+            End If
+
+        End Sub
+
+        Public Shared Sub DirectoryCopy(ByVal sourceDirName As String, ByVal destDirName As String, ByVal copySubDirs As Boolean)
+
+            ' Get the subdirectories for the specified directory. 
+            Dim targetDir As DirectoryInfo = Nothing
+            Dim srcDir As DirectoryInfo = New DirectoryInfo(sourceDirName)
+            Dim srcDirs As DirectoryInfo() = srcDir.GetDirectories()
+
+            If Not srcDir.Exists Then
+                Throw New DirectoryNotFoundException( _
+                    "Source directory does not exist or could not be found: " _
+                    + sourceDirName)
+            End If
+
+            ' If the destination directory doesn't exist, create it. 
+            If Not Directory.Exists(destDirName) Then
+                targetDir = Directory.CreateDirectory(destDirName)
+            End If
+            ' Get the files in the directory and copy them to the new location. 
+            Dim srcFiles As FileInfo() = srcDir.GetFiles()
+            For Each srcFile In srcFiles
+                If Not srcFile.Name.ToLower.EndsWith("thumbs.db") Then
+                    Dim temppath As String = Path.Combine(destDirName, srcFile.Name)
+                    srcFile.CopyTo(temppath, False)
+                End If
+            Next srcFile
+
+            ' If copying subdirectories, copy them and their contents to new location. 
+            If copySubDirs Then
+                For Each subdir In srcDirs
+                    Dim temppath As String = Path.Combine(destDirName, subdir.Name)
+                    DirectoryCopy(subdir.FullName, temppath, copySubDirs)
+                Next
+            End If
+
+        End Sub
+
+        Public Shared Sub DirectorySetAppPoolPermission(appPoolName, folderPath)
+
+            Dim UserAccount As String = "IIS APPPOOL\" & appPoolName 'Specify the user here
+
+            Dim FolderInfo As IO.DirectoryInfo = New IO.DirectoryInfo(folderPath)
+            Dim FolderAcl As New DirectorySecurity
+            FolderAcl.AddAccessRule(New FileSystemAccessRule(UserAccount, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit Or InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow))
+            'FolderAcl.SetAccessRuleProtection(True, False) 'uncomment to remove existing permissions
+            FolderInfo.SetAccessControl(FolderAcl)
+
+        End Sub
+
         Public Shared Function GetConnectionStringFromConfig(ByVal ConfigPath As String) As String
 
             Dim mapping As New ExeConfigurationFileMap()
@@ -95,53 +159,6 @@ Namespace Common
 
         End Function
 
-        Public Shared Sub DirectoryCopy(ByVal sourceDirName As String, ByVal destDirName As String, ByVal copySubDirs As Boolean)
-
-            ' Get the subdirectories for the specified directory. 
-            Dim dir As DirectoryInfo = New DirectoryInfo(sourceDirName)
-            Dim dirs As DirectoryInfo() = dir.GetDirectories()
-
-            If Not dir.Exists Then
-                Throw New DirectoryNotFoundException( _
-                    "Source directory does not exist or could not be found: " _
-                    + sourceDirName)
-            End If
-
-            ' If the destination directory doesn't exist, create it. 
-            If Not Directory.Exists(destDirName) Then
-                Directory.CreateDirectory(destDirName)
-            End If
-            ' Get the files in the directory and copy them to the new location. 
-            Dim files As FileInfo() = dir.GetFiles()
-            For Each file In files
-                If Not file.Name.ToLower.EndsWith("thumbs.db") Then
-                    Dim temppath As String = Path.Combine(destDirName, file.Name)
-                    file.CopyTo(temppath, False)
-                End If
-            Next file
-
-            ' If copying subdirectories, copy them and their contents to new location. 
-            If copySubDirs Then
-                For Each subdir In dirs
-                    Dim temppath As String = Path.Combine(destDirName, subdir.Name)
-                    DirectoryCopy(subdir.FullName, temppath, copySubDirs)
-                Next subdir
-            End If
-        End Sub
-
-        Public Shared Sub SetPermissions(siteName, sitePath)
-
-            Dim FolderPath As String = sitePath 'Specify the folder here
-            Dim UserAccount As String = "IIS APPPOOL\" & siteName 'Specify the user here
-
-            Dim FolderInfo As IO.DirectoryInfo = New IO.DirectoryInfo(FolderPath)
-            Dim FolderAcl As New DirectorySecurity
-            FolderAcl.AddAccessRule(New FileSystemAccessRule(UserAccount, FileSystemRights.FullControl, InheritanceFlags.ContainerInherit Or InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow))
-            'FolderAcl.SetAccessRuleProtection(True, False) 'uncomment to remove existing permissions
-            FolderInfo.SetAccessControl(FolderAcl)
-
-        End Sub
-
         Public Shared Function GetDatabaseInfo(Connection As SqlConnection) As DatabaseInfo
 
             Dim item As New DatabaseInfo
@@ -177,7 +194,9 @@ Namespace Common
 
             Dim sql As String = ""
             sql = "USE [master];" & vbNewLine
-            sql += "DROP DATABASE [" & DatabaseName & "]"
+            sql += "ALTER DATABASE [" & DatabaseName & "] SET  SINGLE_USER WITH ROLLBACK IMMEDIATE;" & vbNewLine
+            sql += "USE [master];" & vbNewLine
+            sql += "DROP DATABASE [" & DatabaseName & "];"
             Try
                 SqlHelper.ExecuteNonQuery(Connection, System.Data.CommandType.Text, sql)
             Catch
@@ -190,6 +209,7 @@ Namespace Common
             Dim sql As String = ""
             sql = "USE [master];" & vbNewLine
             sql += "ALTER DATABASE [" & DatabaseName & "] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;" & vbNewLine
+            sql += "USE [master];" & vbNewLine
             sql += "EXEC sp_detach_db @dbname = '" & DatabaseName & "', @skipchecks = 'true';" & vbNewLine
             SqlHelper.ExecuteNonQuery(Connection, System.Data.CommandType.Text, sql)
 
@@ -240,6 +260,45 @@ Namespace Common
 
         End Sub
 
+        Public Shared Function CreateSite(siteName As String, sitePath As String, sitePort As String, hostHeader As String) As Boolean
+
+            If Not IISAppPool.Exists(siteName) Then
+                Try
+                    IISAppPool.CreateAppPool(siteName)
+                Catch
+                End Try
+            End If
+
+            If Not IISWebsite.Exists(siteName) Then
+                Try
+                    IISWebsite.CreateWebsite(siteName, 80, sitePath, siteName, hostHeader)
+                Catch
+                End Try
+            End If
+
+            'set hostheader in hosts file
+            Dim path As String = "C:\windows\system32\drivers\etc\hosts"
+            If System.IO.File.Exists(path) Then
+
+                Dim sr As New StreamReader(path)
+                Dim content As String = sr.ReadToEnd
+                sr.Close()
+                sr.Dispose()
+
+                Dim entry As String = "127.0.0.1       " & hostHeader
+                If Not content.Contains(entry) Then
+                    Dim sw As New StreamWriter(path, True)
+                    sw.WriteLine("127.0.0.1       " & hostHeader)
+                    sw.Close()
+                    sw.Dispose()
+                End If
+
+            End If
+
+            Utilities.DirectorySetAppPoolPermission(siteName, sitePath)
+
+            Return True
+        End Function
 
     End Class
 End Namespace

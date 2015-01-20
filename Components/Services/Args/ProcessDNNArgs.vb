@@ -1,4 +1,4 @@
-﻿Namespace Services
+﻿Namespace Services.Args
 
     Public Class ProcessDNNArgs
 

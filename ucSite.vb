@@ -1,6 +1,7 @@
 ﻿Imports System.ComponentModel
 Imports DNNTool.Services
 Imports System.Data.SqlClient
+Imports DNNTool.Services.Args
 
 Public Class ucSite
 
@@ -299,7 +300,7 @@ Public Class ucSite
         args.MDFPath = _mdfFile
         args.SiteAlias = txtTargetSiteAlias.Text
         args.SiteName = txtTargetSiteName.Text
-        args.SitePath = _targetDirectory        
+        args.SitePath = _targetDirectory
         args.SitePort = Convert.ToInt32(ctlTargetSitePort.Value)
 
         CreateSiteProcessor.RunWorkerAsync(args)
@@ -341,7 +342,13 @@ Public Class ucSite
     Private Sub hypSite_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles hypSite.LinkClicked
 
         Dim strAlias As String = txtTargetSiteAlias.Text
-        Dim url As String = String.Format("http://{0}/install/install.aspx?mode=install", strAlias)
+        Dim url As String = ""
+        If _mode = "create" Then
+            url = String.Format("http://{0}/install/install.aspx?mode=install", strAlias)
+        Else
+            url = String.Format("http://{0}", strAlias)
+        End If
+
         Process.Start(url)
 
     End Sub

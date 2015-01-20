@@ -5,6 +5,7 @@ Imports System.IO
 Imports System.Security.AccessControl
 Imports DNNTool.Common
 Imports System.Data.SqlClient
+Imports DNNTool.Services.Args
 
 
 
@@ -29,7 +30,7 @@ Namespace Services
                 Return _result
             End If
 
-            If ValidateDNN(args.TargetPath) Then                
+            If ValidateDNN(args.TargetPath) Then
                 percentage = 100
                 worker.ReportProgress(percentage)
             Else
@@ -49,13 +50,8 @@ Namespace Services
 
             Try
 
-                For Each Dir As String In Directory.GetDirectories(targetDirectory)
-                    Directory.Delete(Dir, True)
-                Next
-                For Each strFile As String In Directory.GetFiles(targetDirectory)
-                    File.Delete(strFile)
-                Next
-
+                Utilities.DirectoryDelete(targetDirectory)
+                Utilities.DirectoryCreate(targetDirectory)
                 System.IO.Compression.ZipFile.ExtractToDirectory(filename, targetDirectory)
                 _result.SiteName = filename.Substring(filename.LastIndexOf("\") + 1).Replace(".zip", "")
 
@@ -100,6 +96,7 @@ Namespace Services
                 Next
 
                 _result.IsValidDNN = True
+                System.Threading.Thread.Sleep(1000)
 
                 Return True
 

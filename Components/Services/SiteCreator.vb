@@ -4,6 +4,7 @@ Imports DNNTool.Entities
 Imports System.IO
 Imports System.Security.AccessControl
 Imports DNNTool.Common
+Imports DNNTool.Services.Args
 
 
 Namespace Services
@@ -23,7 +24,7 @@ Namespace Services
             Dim percentage As Integer = 5
             worker.ReportProgress(percentage)
 
-            If CreateSite(args.SiteName, args.SitePath, args.SitePort, args.SiteAlias) Then
+            If Utilities.CreateSite(args.SiteName, args.SitePath, args.SitePort, args.SiteAlias) Then
                 percentage = 25
                 worker.ReportProgress(percentage)
             Else
@@ -87,46 +88,6 @@ Namespace Services
 
             Return srcPath
 
-        End Function
-
-        Private Shared Function CreateSite(name As String, root As String, port As String, hostheader As String) As Boolean
-
-            If Not IISAppPool.Exists(name) Then
-                Try
-                    IISAppPool.CreateAppPool(name)
-                Catch
-                End Try
-            End If
-
-            If Not IISWebsite.Exists(name) Then
-                Try
-                    IISWebsite.CreateWebsite(name, 80, root, name, hostheader)
-                Catch
-                End Try
-            End If
-
-            'set hostheader in hosts file
-            Dim path As String = "C:\windows\system32\drivers\etc\hosts"
-            If System.IO.File.Exists(path) Then
-
-                Dim sr As New StreamReader(path)
-                Dim content As String = sr.ReadToEnd
-                sr.Close()
-                sr.Dispose()
-
-                Dim entry As String = "127.0.0.1       " & hostheader
-                If Not content.Contains(entry) Then
-                    Dim sw As New StreamWriter(path, True)
-                    sw.WriteLine("127.0.0.1       " & hostheader)
-                    sw.Close()
-                    sw.Dispose()
-                End If
-
-            End If
-
-            Utilities.SetPermissions(name, root)
-
-            Return True
         End Function
 
         Private Shared Function AttachDatabase(databaseName As String, mdfPath As String, ldfPath As String, siteName As String) As Boolean

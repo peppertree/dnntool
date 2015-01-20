@@ -5,6 +5,7 @@ Imports System.IO
 Imports System.Security.AccessControl
 Imports DNNTool.Common
 Imports System.Data.SqlClient
+Imports DNNTool.Services.Args
 
 
 Namespace Services
@@ -55,16 +56,12 @@ Namespace Services
         Private Shared Function CloneFilesystem(srcPath As String, targetPath As String) As Boolean
 
             Dim destPath As String = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "temp\website")
-            If System.IO.Directory.Exists(destPath) Then
-                Try
-                    System.IO.Directory.Delete(destPath, True)
-                Catch
-                End Try
-            End If
-            System.IO.Directory.CreateDirectory(destPath)
-
-
-            Utilities.DirectoryCopy(srcPath, destPath, True)
+            Try
+                Utilities.DirectoryDelete(destPath)
+                Utilities.DirectoryCopy(srcPath, destPath, True)
+            Catch ex As Exception
+                Return False
+            End Try
 
             Return True
 
@@ -73,13 +70,8 @@ Namespace Services
         Private Shared Function CopyDatabase(targetPath As String) As Boolean
 
             Dim destPath As String = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "temp\database")
-            If System.IO.Directory.Exists(destPath) Then
-                Try
-                    System.IO.Directory.Delete(destPath, True)
-                Catch
-                End Try
-            End If
-            System.IO.Directory.CreateDirectory(destPath)
+            Utilities.DirectoryDelete(destPath)
+            Utilities.DirectoryCreate(destPath)
 
             Dim logialName As String = ""
             Dim physicalName As String = ""

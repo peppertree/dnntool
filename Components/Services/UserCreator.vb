@@ -1,6 +1,7 @@
 ﻿Imports System.ComponentModel
 Imports Microsoft.ApplicationBlocks.Data
 Imports DNNTool.Entities
+Imports DNNTool.Services.Args
 
 Namespace Services
     Public Class UserCreator
@@ -142,7 +143,7 @@ Namespace Services
                 Dim dnnuserid As Integer = CType(SqlHelper.ExecuteScalar(_connection, "AddUser", PortalId, u.UserName, u.Firstname, u.Lastname, -1, 0, u.Email, displayname, 0, 1, 1), Integer)
                 SqlHelper.ExecuteScalar(_connection, "UpdateUserProfileProperty", DBNull.Value, dnnuserid, _sampleUser.FirstnamePropertyId, u.Firstname, 1, "", Date.Now)
                 SqlHelper.ExecuteScalar(_connection, "UpdateUserProfileProperty", DBNull.Value, dnnuserid, _sampleUser.LastnamePropertyId, u.Lastname, 1, "", Date.Now)
-                SqlHelper.ExecuteScalar(_connection, "AddUserRole", Portalid, dnnuserid, 1, 1, 0, DBNull.Value, DBNull.Value, _sampleUser.DNNUserId)
+                SqlHelper.ExecuteScalar(_connection, "AddUserRole", PortalId, dnnuserid, 1, 1, 0, DBNull.Value, DBNull.Value, _sampleUser.DNNUserId)
 
             End If
 

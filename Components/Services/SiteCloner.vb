@@ -4,6 +4,7 @@ Imports DNNTool.Entities
 Imports System.IO
 Imports System.Security.AccessControl
 Imports DNNTool.Common
+Imports DNNTool.Services.Args
 
 
 Namespace Services
@@ -30,7 +31,7 @@ Namespace Services
             End If
 
 
-            If CreateSite(args.TargetSiteName, args.TargetSitePath, args.TargetSitePort, args.TargetSiteAlias) Then
+            If Utilities.CreateSite(args.TargetSiteName, args.TargetSitePath, args.TargetSitePort, args.TargetSiteAlias) Then
                 percentage = 50
                 worker.ReportProgress(percentage)
             Else
@@ -79,53 +80,11 @@ Namespace Services
 
         Private Shared Function CloneFilesystem(srcSitePath As String, targetSitePath As String, targetSiteName As String) As Boolean
 
-            If System.IO.Directory.Exists(targetSitePath) Then
-                System.IO.Directory.Delete(targetSitePath, True)
-            End If
-
+            Utilities.DirectoryDelete(targetSitePath)
             Utilities.DirectoryCopy(srcSitePath, targetSitePath, True)
-            Utilities.SetPermissions(targetSiteName, targetSitePath)
 
             Return True
 
-        End Function
-
-        Private Shared Function CreateSite(name As String, root As String, port As String, hostheader As String) As Boolean
-
-            If Not IISAppPool.Exists(name) Then
-                Try
-                    IISAppPool.CreateAppPool(name)
-                Catch
-                End Try
-            End If
-
-            If Not IISWebsite.Exists(name) Then
-                Try
-                    IISWebsite.CreateWebsite(name, 80, root, name, hostheader)
-                Catch
-                End Try
-            End If
-
-            'set hostheader in hosts file
-            Dim path As String = "C:\windows\system32\drivers\etc\hosts"
-            If System.IO.File.Exists(path) Then
-
-                Dim sr As New StreamReader(path)
-                Dim content As String = sr.ReadToEnd
-                sr.Close()
-                sr.Dispose()
-
-                Dim entry As String = "127.0.0.1       " & hostheader
-                If Not content.Contains(entry) Then
-                    Dim sw As New StreamWriter(path, True)
-                    sw.WriteLine("127.0.0.1       " & hostheader)
-                    sw.Close()
-                    sw.Dispose()
-                End If
-
-            End If
-
-            Return True
         End Function
 
         Private Shared Function CloneDatabase(srcDBName As String, targetDBName As String, targetSiteName As String) As Boolean
@@ -133,39 +92,55 @@ Namespace Services
             Dim CurrentDB As DatabaseInfo = Utilities.GetDatabaseInfo(_connection)
             Dim TargetDB As DatabaseInfo = Nothing
 
-            If Not CurrentDB Is Nothing  Then
+            If Not CurrentDB Is Nothing Then
 
                 '1.: Make sure clone db does not exist yet
-                Utilities.DropDatabase(_connection, targetDBName)
+                Try
+                    Utilities.DropDatabase(_connection, targetDBName)
+                Catch
+                End Try
+
 
                 '2.: Detach current database
                 Utilities.DetachDatabase(_connection, CurrentDB.Database)
 
-                '3.: Copy files into new db files
-                System.IO.File.Copy(CurrentDB.PathMdf, CurrentDB.PathMdf.Replace(".mdf", "_clone.mdf"))
-                System.IO.File.Copy(CurrentDB.PathLdf, CurrentDB.PathLdf.Replace(".ldf", "_clone.ldf"))
+                '3.: Create database clone
 
-                '4.: Attach original database
-                Utilities.AttachDatabase(_connection, CurrentDB)
+                Dim targetMDFPath As String = CurrentDB.PathMdf.Replace(".mdf", "_clone.mdf")
+                Dim targetLDFPath As String = CurrentDB.PathLdf.Replace(".ldf", "_clone.ldf")
 
-                '5.: Attach cloned database
                 TargetDB = New DatabaseInfo
                 TargetDB.Database = CurrentDB.Database & "_Clone"
                 TargetDB.LogicalNameLdf = CurrentDB.LogicalNameLdf
-                TargetDB.PathLdf = CurrentDB.PathLdf.Replace(".ldf", "_clone.ldf")
-                TargetDB.FileNameLdf = TargetDB.PathMdf.Substring(TargetDB.PathMdf.LastIndexOf("\") + 1)
+                TargetDB.PathLdf = targetLDFPath
+                TargetDB.FileNameLdf = targetLDFPath.Substring(targetLDFPath.LastIndexOf("\") + 1)
                 TargetDB.LogicalNameMdf = CurrentDB.LogicalNameMdf
-                TargetDB.PathMdf = CurrentDB.PathMdf.Replace(".mdf", "_clone.mdf")
-                TargetDB.FileNameMdf = TargetDB.PathLdf.Substring(TargetDB.PathLdf.LastIndexOf("\") + 1)
+                TargetDB.PathMdf = targetMDFPath
+                TargetDB.FileNameMdf = targetMDFPath.Substring(targetMDFPath.LastIndexOf("\") + 1)
 
+                '3.: Copy files into new db files
+                Try
+                    If File.Exists(targetMDFPath) Then
+                        File.Delete(targetMDFPath)
+                    End If
+                    If File.Exists(targetLDFPath) Then
+                        File.Delete(targetLDFPath)
+                    End If
+                Catch
+                End Try
+                System.IO.File.Copy(CurrentDB.PathMdf, targetMDFPath)
+                System.IO.File.Copy(CurrentDB.PathLdf, targetLDFPath)
+
+                '4.: Attach new database
                 Utilities.AttachDatabase(_connection, TargetDB)
+
+                '5.: Attach original database
+                Utilities.AttachDatabase(_connection, CurrentDB)
 
                 '6.: apply new db permissions
                 Utilities.ApplyDatabasePermissions(_connection, TargetDB, targetSiteName)
 
             End If
-
-
 
             Return True
 
@@ -204,8 +179,6 @@ Namespace Services
 
             Return True
         End Function
-
-
 
 #End Region
 

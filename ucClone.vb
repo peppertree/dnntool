@@ -3,6 +3,7 @@ Imports System.DirectoryServices
 Imports System.ComponentModel
 Imports DNNTool.Services
 Imports System.Data.SqlClient
+Imports DNNTool.Services.Args
 
 Public Class ucClone
 
@@ -250,7 +251,7 @@ Public Class ucClone
 
     End Sub
 
-    Private Sub hypSite_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles hypSite.Click
+    Private Sub hypSite_LinkClicked(sender As Object, e As LinkLabelLinkClickedEventArgs) Handles hypSite.LinkClicked
 
         Dim url As String = "http://" & txtTargetSiteAlias.Text
         System.Diagnostics.Process.Start(url)
@@ -354,5 +355,4 @@ Public Class ucClone
     End Sub
 
 #End Region
-
 End Class

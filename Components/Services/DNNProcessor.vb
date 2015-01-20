@@ -5,6 +5,7 @@ Imports System.IO
 Imports System.Security.AccessControl
 Imports DNNTool.Common
 Imports System.Data.SqlClient
+Imports DNNTool.Services.Args
 
 
 
@@ -56,12 +57,8 @@ Namespace Services
 
             Try
 
-                For Each Dir As String In Directory.GetDirectories(targetDirectory)
-                    Directory.Delete(Dir, True)
-                Next
-                For Each strFile As String In Directory.GetFiles(targetDirectory)
-                    File.Delete(strFile)
-                Next
+                Utilities.DirectoryDelete(targetDirectory)
+                Utilities.DirectoryCreate(targetDirectory)
 
                 System.IO.Compression.ZipFile.ExtractToDirectory(filename, targetDirectory)
                 _result.SiteName = filename.ToLower.Substring(filename.LastIndexOf("\") + 1).Replace(".zip", "").Replace("_install", "")

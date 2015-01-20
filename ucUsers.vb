@@ -3,6 +3,7 @@ Imports System.DirectoryServices
 Imports DNNTool.Entities
 Imports System.ComponentModel
 Imports DNNTool.Services
+Imports DNNTool.Services.Args
 
 
 Public Class ucUsers
