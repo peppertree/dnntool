@@ -1,6 +1,10 @@
 # DNN.Tool
 DNN.Tool is a winforms application that allows you to manipulate your local DNN sites hosted in IIS
 
+make sure to watch the intro videos in the wiki:
+https://github.com/peppertree/dnntool/wiki
+
+
 Currently you can do three different types of actions:
 
 1. create a clone from a local site
