@@ -21,35 +21,53 @@ Public Class DNNTool
 #Region "Event Handlers"
 
     Private Sub DNNTools_Load(sender As Object, e As EventArgs) Handles Me.Load
-
-        Dim loadControl As New ucLoad
-        Me.ctlContainer.Panel2.Controls.Clear()
-        Me.ctlContainer.Panel2.Controls.Add(loadControl)
-
+        Try
+            Dim loadControl As New ucLoad
+            Me.ctlContainer.Panel2.Controls.Clear()
+            Me.ctlContainer.Panel2.Controls.Add(loadControl)
+        Catch ex As System.Runtime.InteropServices.COMException
+            MsgBox("This application must be run in an administrative context. Right click on the application and select ""run as administrator""")
+        End Try
     End Sub
 
     Private Sub btnHome_Click(sender As Object, e As EventArgs) Handles btnHome.Click
-        Dim homeControl As New ucLoad
-        Me.ctlContainer.Panel2.Controls.Clear()
-        Me.ctlContainer.Panel2.Controls.Add(homeControl)
+        Try
+            Dim homeControl As New ucLoad
+            Me.ctlContainer.Panel2.Controls.Clear()
+            Me.ctlContainer.Panel2.Controls.Add(homeControl)
+        Catch ex As System.Runtime.InteropServices.COMException
+            MsgBox("This application must be run in an administrative context. Right click on the application and select ""run as administrator""")
+        End Try
     End Sub
 
     Private Sub btnCloneWebsite_Click(sender As Object, e As EventArgs) Handles btnCloneWebsite.Click
-        Dim cloneControl As New ucClone
-        Me.ctlContainer.Panel2.Controls.Clear()
-        Me.ctlContainer.Panel2.Controls.Add(cloneControl)
+        Try
+            Dim cloneControl As New ucClone
+            Me.ctlContainer.Panel2.Controls.Clear()
+            Me.ctlContainer.Panel2.Controls.Add(cloneControl)
+        Catch ex As System.Runtime.InteropServices.COMException
+            MsgBox("This application must be run in an administrative context. Right click on the application and select ""run as administrator""")
+        End Try
     End Sub
 
     Private Sub btnUsers_Click(sender As Object, e As EventArgs) Handles btnUsers.Click
-        Dim usersControl As New ucUsers
-        Me.ctlContainer.Panel2.Controls.Clear()
-        Me.ctlContainer.Panel2.Controls.Add(usersControl)
+        Try
+            Dim usersControl As New ucUsers
+            Me.ctlContainer.Panel2.Controls.Clear()
+            Me.ctlContainer.Panel2.Controls.Add(usersControl)
+        Catch ex As System.Runtime.InteropServices.COMException
+            MsgBox("This application must be run in an administrative context. Right click on the application and select ""run as administrator""")
+        End Try
     End Sub
 
     Private Sub btnSite_Click(sender As Object, e As EventArgs) Handles btnSite.Click
-        Dim siteControl As New ucSite
-        Me.ctlContainer.Panel2.Controls.Clear()
-        Me.ctlContainer.Panel2.Controls.Add(siteControl)
+        Try
+            Dim siteControl As New ucSite
+            Me.ctlContainer.Panel2.Controls.Clear()
+            Me.ctlContainer.Panel2.Controls.Add(siteControl)
+        Catch ex As System.Runtime.InteropServices.COMException
+            MsgBox("This application must be run in an administrative context. Right click on the application and select ""run as administrator""")
+        End Try
     End Sub
 
 #End Region
