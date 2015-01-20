@@ -1,7 +1,7 @@
 # DNN.Tool
 DNN.Tool is a winforms application that allows you to manipulate your local DNN sites hosted in IIS
 
-Currently you can do two different types of actions:
+Currently you can do three different types of actions:
 
 1. create a clone from a local site
 
@@ -15,4 +15,16 @@ Currently you can do two different types of actions:
 
   a) create a site from a previously created clone archive (see above)
   
-  b) craete a new site from scratch, i.e. use a regular install package to create a new DNN installation. 
+  b) create a new site from scratch, i.e. use a regular install package to create a new DNN installation. 
+  
+3. bulk create user accounts
+
+   when bulk creating accounts it will create the specified number of accounts. the passwords of those accounts will be set to the password of the site's initial superuser account. Names and e-mail addresses are being generated randomly from string arrays set up in the app.config found in the tool's bin directory. 
+  
+  
+#Notes:
+- all sites use an application pool in integrated pipeline mode. Its identity is set to "ApplicationPoolIdentity"
+- all databases use windows authentication. Therefor make sure you are using this tool through a user account that has full access to your local IIS server. 
+- you can only clone / restore sites that are using integrated security when connecting to sql server
+- for new sites the tool uses the "ConnectionStringTemplate" setting from app.config in the bin directory of the tool
+- the tool uses the "LocalConnectionString" setting from app.config in the bin directory of the tool for connecting to sql server
