@@ -1,0 +1,58 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="My" GeneratedClassName="MySettings" UseMySettingsClassName="true">
+  <Profiles />
+  <Settings>
+    <Setting Name="Firstnames" Type="System.Collections.Specialized.StringCollection" Scope="Application">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;John&lt;/string&gt;
+  &lt;string&gt;Dave&lt;/string&gt;
+  &lt;string&gt;Steve&lt;/string&gt;
+  &lt;string&gt;Harold&lt;/string&gt;
+  &lt;string&gt;Mike&lt;/string&gt;
+  &lt;string&gt;James&lt;/string&gt;
+  &lt;string&gt;Jim&lt;/string&gt;
+  &lt;string&gt;Joe&lt;/string&gt;
+  &lt;string&gt;Will&lt;/string&gt;
+  &lt;string&gt;Scott&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="LastNames" Type="System.Collections.Specialized.StringCollection" Scope="Application">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;Smith&lt;/string&gt;
+  &lt;string&gt;Wesson&lt;/string&gt;
+  &lt;string&gt;Jobs&lt;/string&gt;
+  &lt;string&gt;Doe&lt;/string&gt;
+  &lt;string&gt;Stevens&lt;/string&gt;
+  &lt;string&gt;Richard&lt;/string&gt;
+  &lt;string&gt;Mull&lt;/string&gt;
+  &lt;string&gt;Murray&lt;/string&gt;
+  &lt;string&gt;Mart&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="EmailDomains" Type="System.Collections.Specialized.StringCollection" Scope="Application">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfString xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;string&gt;google.mail&lt;/string&gt;
+  &lt;string&gt;microsoft.mail&lt;/string&gt;
+  &lt;string&gt;test.mail&lt;/string&gt;
+&lt;/ArrayOfString&gt;</Value>
+    </Setting>
+    <Setting Name="Username" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">user</Value>
+    </Setting>
+    <Setting Name="ConnectionStringTemplate" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Data Source=.;Initial Catalog={0};Integrated Security=True</Value>
+    </Setting>
+    <Setting Name="LocalConnectionString" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Data Source=.;Integrated Security=True</Value>
+    </Setting>
+    <Setting Name="HostUsername" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">sysadmin</Value>
+    </Setting>
+    <Setting Name="HostPassword" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">#password#</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
